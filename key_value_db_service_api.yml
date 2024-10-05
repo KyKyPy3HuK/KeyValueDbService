@@ -1,0 +1,180 @@
+openapi: 3.0.0
+info:
+  title: KeyValueDbService API
+  description: API для работы с key-value хранилищем с поддержкой TTL.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /:
+    get:
+      summary: Проверка соединения
+      description: Проверка успешности подключения к API.
+      responses:
+        '200':
+          description: Подключение успешно
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Connection successful!
+
+  /get:
+    get:
+      summary: Получение значения по ключу
+      description: Возвращает значение, связанное с заданным ключом.
+      parameters:
+        - in: query
+          name: key
+          schema:
+            type: string
+          required: true
+          description: Ключ для получения значения
+      responses:
+        '200':
+          description: Значение найдено
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Значение найденное по ключу
+              example: someValue
+        '404':
+          description: Ключ не найден
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Сообщение об ошибке
+                example: Key not found
+
+  /set:
+    post:
+      summary: Создание или обновление записи
+      description: Если запись с данным ключом уже существует то данная запись обновляется, иначе создается новая
+      parameters:
+        - in: query
+          name: key
+          schema:
+            type: string
+          required: true
+          description: Ключ
+        - in: query
+          name: value
+          schema:
+            type: string
+          required: true
+          description: Значение, которое нужно сохранить по ключу
+        - in: query
+          name: ttl
+          schema:
+            type: integer
+            default: -1
+          required: false
+          description: Время жизни ключа в секундах, если -1, то время жизни не ограничено
+      responses:
+        '200':
+          description: Значение обновлено успешно
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Сообщение об успешном обновлении записи
+                example: Update successfully
+        '201':
+          description: Значение создано успешно
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Сообщение об успешном создании записи
+                example: Create successfully
+        '500':
+          description: Произошла ошибка
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Сообщение об ошибке
+                example: Error occurred
+
+  /remove:
+    post:
+      summary: Удаление значения по ключу
+      description: Удаляет значение, связанное с заданным ключом.
+      parameters:
+        - in: query
+          name: key
+          schema:
+            type: string
+          required: true
+          description: Ключ для удаления значения
+      responses:
+        '200':
+          description: Значение удалено
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Значение найденное по ключу
+                example: someValue
+        '404':
+          description: Ключ не найден
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Сообщение об ошибке
+                example: Key not found
+
+  /dump/save:
+    post:
+      summary: Сохранение дампа базы данных
+      description: Сохраняет дамп текущей базы данных в файл.
+      parameters:
+        - in: query
+          name: mode
+          schema:
+            type: string
+            enum: [DEFAULT, SOFT]
+            default: DEFAULT
+          required: false
+          description: Режим сохранения дампа
+      responses:
+        '200':
+          description: Дамп сохранен успешно
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Сообщение об успешном сохранении дампа
+                example: Dump saved successfully
+        '500':
+          description: Произошла ошибка
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Error occurred
+
+  /dump/load:
+    post:
+      summary: Загрузка дампа базы данных
+      description: Загружает дамп из файла в базу данных.
+      responses:
+        '200':
+          description: Дамп загружен успешно
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Сообщение об успешной загрузке дампа
+                example: Dump loaded successfully
+        '500':
+          description: Произошла ошибка
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Сообщение об ошибке
+                example: Error occurred
